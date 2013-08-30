@@ -1,16 +1,33 @@
+(define infty 'nil)
+
 (define (rat-to-cf r) 
   (let* ((ipart (floor r))
 	 (fpart (- r ipart)))
     (if (= fpart 0) (list ipart)
 	(append (list ipart) (rat-to-cf (/ fpart))))))
-
 (define (dec-to-cf d)
   (let ((rep (rat-to-cf (rationalize (inexact->exact d) 0))))
-    (append (list (car rep) (list (cdr rep))))))
+    rep))
+(define (cf-to-rat frep)
+  (if (null? (cdr frep)) (/ (car frep))
+      (+ (car frep) (/ (cf-to-rat (cdr frep))))))
+(define (cf-to-dec z)
+  (exact->inexact (cf-to-rat z)))
 
-(define (continued-fraction frep)
-  (if (null (cdr frep)) (/ (car frep))
-      (+ (car frep) (/ (continued-fraction (cdr frep))))))
-
-
-
+(define (gen-normal-cf-terms n k)
+  (define (frac-iter i cf)
+    (if (= i 0)
+	cf
+	(frac-iter (- i 1) (append (list (n i)) cf)) ))
+  (frac-iter k '()))
+(define (quadratic-surd i periodic-seq)
+  (list-ref periodic-seq (remainder i (length periodic-seq))))
+;; Tests:
+(define pi 3.14159265358979)
+(define phi (/ (+ 1 (sqrt 5)) 2))
+(= (cf-to-dec (dec-to-cf pi)) pi)
+(= (cf-to-dec (gen-normal-cf-terms (lambda (i) 1) 100)) phi)
+;(= (cf-to-dec (gen-normal-cf-terms (lambda (i) ))))
+(= (cf-to-dec (append  (gen-normal-cf-terms
+			(lambda (i)
+			  (quadratic-surd i '(1 2))) 100) '(1))) (sqrt 3))
