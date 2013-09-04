@@ -16,18 +16,36 @@
 
 (define (gen-normal-cf-terms n k)
   (define (frac-iter i cf)
-    (if (= i 0)
+    (if (= i k)
 	cf
-	(frac-iter (- i 1) (append (list (n i)) cf)) ))
-  (frac-iter k '()))
+	(frac-iter (+ i 1) (append  cf (list (n i)))) ))
+  (frac-iter 0 '()))
 (define (quadratic-surd i periodic-seq)
   (list-ref periodic-seq (remainder i (length periodic-seq))))
+(define (cf-quadratic-surd x i)
+  (if (= i 0) (caar x)
+      (quadratic-surd (- i 1) (cadr x))))
+;see http://perl.plover.com/classes/cftalk/TALK/slide027.html
+;; (define (z-machine (a b c d x))
+;;   (let ((a/c  (/ a c))
+;; 	(b/d  (/ b d))
+;; 	(p (car x))
+;; 	(x' (cdr x)))
+;;     (if (= (floor a/c) (floor b/d)) (floor a/c)
+;; 	(z-machine b (+ a (* b p)) d (+ c (* b p)) x'))))
+
 ;; Tests:
 (define pi 3.14159265358979)
 (define phi (/ (+ 1 (sqrt 5)) 2))
-(= (cf-to-dec (dec-to-cf pi)) pi)
-(= (cf-to-dec (gen-normal-cf-terms (lambda (i) 1) 100)) phi)
-;(= (cf-to-dec (gen-normal-cf-terms (lambda (i) ))))
-(= (cf-to-dec (append  (gen-normal-cf-terms
-			(lambda (i)
-			  (quadratic-surd i '(1 2))) 100) '(1))) (sqrt 3))
+(define (cf-phi i)  1)
+(define (cf-sqrt-3 i)
+  (cf-quadratic-surd '((1) (1 2)) i))
+
+(display (= (cf-to-dec (dec-to-cf pi)) pi) )
+(display "\n")
+(display `(,(cf-to-dec (gen-normal-cf-terms cf-phi 1000))  ,phi))
+;(display (= (cf-to-dec (gen-normal-cf-terms cf-phi 1000)) phi))
+(display "\n")
+(display `(,(sqrt 3) ,(cf-to-dec (gen-normal-cf-terms cf-sqrt-3 100))) )
+(display "\n")
+
